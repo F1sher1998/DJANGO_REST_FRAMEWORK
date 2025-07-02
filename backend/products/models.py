@@ -6,5 +6,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=15,
     decimal_places=2, default = 0.00)
 
-    def __str__(self):
-        return self.title
+    @property
+    def sale_price(self):
+        return "%.2f" %(float(self.price) *1.2)
+    
+
+    def get_discount(self):
+        return "122.22"
