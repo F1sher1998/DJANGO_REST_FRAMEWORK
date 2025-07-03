@@ -1,13 +1,17 @@
-from rest_framework import generics
+from django.core.serializers import serialize
+from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import Product
 from.serializers import ProductSerializer
+from .permissions import IsStaffEditorPermission
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
@@ -60,7 +64,34 @@ class ProductListAPIView(generics.ListAPIView):
     # .get(pk)
 product_list_view = ProductListAPIView.as_view()
 
+class CreateAPIView(mixins.CreateModelMixin, generics.GenericAPIView):
+    pass
 
+class ProductMixinView(mixins.CreateModelMixin, mixins.ListModelMixin,mixins.RetrieveModelMixin, generics.GenericAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        if pk is not None:
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(self, request, *args, **kwargs)
+
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        # serializer.save(user=self.request.user)
+        print(serializer.validated_data)
+        title = serializer.validated_data.get('title')
+        content = serializer.validated_data.get('content')
+        if content is None:
+            content = title
+        serializer.save(content="This is some cool stuff")
+
+product_mixin_view = ProductMixinView.as_view()
 
 
 @api_view(['GET','POST'])
