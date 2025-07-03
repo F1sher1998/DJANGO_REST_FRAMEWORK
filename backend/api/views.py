@@ -31,7 +31,7 @@ def api_home(reqeust, *args, **kwargs):
     #     json_data_str = json.dumps(data)
     # return HttpResponse(json_data_str, headers={"content-type": "application/json"})
 
-   serializer = ProductSerializer(data=reqeust.data)
+   serializer = ProductSerializer(data=request.data)
    if serializer.is_valid():
       # instance = serializer.save(commit=False)
       print(serializer.data)
