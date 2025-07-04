@@ -19,7 +19,7 @@ from products.serializers import ProductSerializer
 
 # --> return only one model at a time in json format
 @api_view(["POST"])
-def api_home(reqeust, *args, **kwargs):
+def api_home(request, *args, **kwargs):
 
     # DRF API VIEW
 
